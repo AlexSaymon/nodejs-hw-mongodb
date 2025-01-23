@@ -3,6 +3,7 @@ import pino from 'pino-http';
 import cors from 'cors';
 import { ENV_VARS } from './constants/env.js';
 import { getEnv } from './utils/getEnv.js';
+import { getAllContacts } from './db/services/contacts.js';
 
 export const setupServer = () => {
   const app = express();
@@ -17,16 +18,21 @@ export const setupServer = () => {
     }),
   );
 
-  app.get('/domain', async (req, res) => {
-    const domain = 'example.com';
+  app.get('/contacts', async (req, res) => {
+    const contacts = await getAllContacts();
 
-    if (!domain) {
+    if (!contacts) {
       return res.status(404).json({
         status: 404,
         message: 'Not found',
       });
     }
-    res.json(domain);
+
+    res.status(200).json({
+      status: 200,
+      message: 'Sucesfully found contacts!',
+      data: res.json(contacts),
+    });
   });
 
   const PORT = getEnv(ENV_VARS.PORT, 3000);
