@@ -47,6 +47,13 @@ export const setupServer = () => {
       });
     }
 
+    app.get((req, res) => {
+      return res.status(404).json({
+        status: 404,
+        message: 'Not Found',
+      });
+    });
+
     res.status(200).json({
       status: 200,
       message: `Successfully found contact with id ${contactId}!`,
