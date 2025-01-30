@@ -42,7 +42,7 @@ export const patchContactController = async (req, res) => {
   const { contactId } = req.params;
   const { body } = req;
 
-  const contact = await upsertContact(contactId, body, { upsert: false });
+  const { contact } = await upsertContact(contactId, body, { upsert: false });
 
   res.json({
     status: 200,
