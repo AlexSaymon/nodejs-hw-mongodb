@@ -29,6 +29,12 @@ export const setupServer = () => {
 
   app.use(errorHandlerMiddleware);
 
+  app.use((req, res) => {
+    return res.status(404).json({
+      message: 'Not Found',
+    });
+  });
+
   const PORT = getEnv(ENV_VARS.PORT, 3000);
 
   app.listen(PORT, () => {
