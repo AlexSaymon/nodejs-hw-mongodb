@@ -16,7 +16,7 @@ contactsRouter.get('/:contactId', ctrlWrapper(getContactByIdController));
 
 contactsRouter.post('/', ctrlWrapper(createContactController));
 
-contactsRouter.patch('/', ctrlWrapper(patchContactController));
+contactsRouter.patch('/:contactId', ctrlWrapper(patchContactController));
 
 contactsRouter.delete('/:contactId', ctrlWrapper(deleteContactByIdController));
 

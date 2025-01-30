@@ -39,10 +39,10 @@ export const createContactController = async (req, res) => {
 };
 
 export const patchContactController = async (req, res) => {
-  const { studentId } = req.params;
+  const { contactId } = req.params;
   const { body } = req;
 
-  const contact = await upsertContact(studentId, body, { upsert: false });
+  const contact = await upsertContact(contactId, body, { upsert: false });
 
   res.json({
     status: 200,
@@ -52,9 +52,9 @@ export const patchContactController = async (req, res) => {
 };
 
 export const deleteContactByIdController = async (req, res) => {
-  const { contactById } = req.params;
+  const { contactId } = req.params;
 
-  await deleteContactById(contactById);
+  await deleteContactById(contactId);
 
   res.status(204).send();
 };
