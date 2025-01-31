@@ -6,7 +6,7 @@ export const errorHandlerMiddleware = (err, req, res, next) => {
     return res.status(err.status).json({
       status: err.status,
       message: err.message,
-      name: err.name,
+      data: err,
     });
   }
 
@@ -14,13 +14,13 @@ export const errorHandlerMiddleware = (err, req, res, next) => {
     return res.status(500).json({
       status: 500,
       message: err.message,
-      name: 'Mongoose error',
+      data: err,
     });
   }
 
   res.status(500).json({
     status: 500,
     message: 'Something went wrong',
-    data: err.message,
+    data: err,
   });
 };

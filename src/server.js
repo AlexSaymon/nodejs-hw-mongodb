@@ -5,6 +5,7 @@ import { ENV_VARS } from './constants/env.js';
 import { getEnv } from './utils/getEnv.js';
 import { errorHandlerMiddleware } from './middlewares/errorHandler.js';
 import { router } from './routes/index.js';
+import { notFoundHandler } from './middlewares/notFoundHandler.js';
 
 export const setupServer = () => {
   const app = express();
@@ -27,13 +28,9 @@ export const setupServer = () => {
 
   app.use(router);
 
-  app.use(errorHandlerMiddleware);
+  app.use(notFoundHandler);
 
-  app.use((req, res) => {
-    return res.status(404).json({
-      message: 'Not Found',
-    });
-  });
+  app.use(errorHandlerMiddleware);
 
   const PORT = getEnv(ENV_VARS.PORT, 3000);
 
