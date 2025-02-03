@@ -22,7 +22,7 @@ export const upsertContact = async (contactId, payload, options = {}) => {
   const response = await contactsCollection.findByIdAndUpdate(
     contactId,
     payload,
-    { ...options, isNew: true, includeResultMetadata: true },
+    { ...options, new: true, includeResultMetadata: true },
   );
 
   const contact = response.value;
