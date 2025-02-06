@@ -16,10 +16,26 @@ const createPaginationMetadata = (page, perPage, count) => {
   };
 };
 
-export const getAllContacts = async ({ page, perPage }) => {
+export const getAllContacts = async ({
+  page,
+  perPage,
+  sortBy,
+  sortOrder,
+  filter,
+}) => {
   const offset = (page - 1) * perPage;
+  const filtersQuery = contactsCollection.find();
 
-  const contactsQuery = contactsCollection.find().skip(offset).limit(perPage);
+  if (filter.isFavourite || filter.isFavourite === false) {
+    filtersQuery.where('isFavourite').equals(filter.isFavourite);
+  }
+
+  const contactsQuery = contactsCollection
+    .find()
+    .merge(filtersQuery)
+    .skip(offset)
+    .limit(perPage)
+    .sort({ [sortBy]: sortOrder });
 
   const contactsCountQuery = contactsCollection
     .find()

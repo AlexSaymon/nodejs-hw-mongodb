@@ -7,13 +7,17 @@ import {
   upsertContact,
 } from '../services/contacts.js';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
+import { parseSortParams } from '../utils/parseSortParams.js';
 
 export const getAllContactsController = async (req, res) => {
   const { page, perPage } = parsePaginationParams(req.query);
+  const { sortOrder, sortBy } = parseSortParams(req.query);
 
   const contactsWithPaginationMetadata = await getAllContacts({
     page,
     perPage,
+    sortOrder,
+    sortBy,
   });
 
   res.json({
