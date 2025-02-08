@@ -30,6 +30,10 @@ export const getAllContacts = async ({
     filtersQuery.where('isFavourite').equals(filter.isFavourite);
   }
 
+  if (filter.contactType) {
+    filtersQuery.where('contactType').equals(filter.contactType);
+  }
+
   const contactsQuery = contactsCollection
     .find()
     .merge(filtersQuery)
