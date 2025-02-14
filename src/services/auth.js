@@ -1,6 +1,7 @@
 import createHttpError from 'http-errors';
 import { userCollection } from '../db/models/user.js';
 import bcrypt from 'bcrypt';
+import crypto from 'node:crypto';
 import { ACCESS_TOKEN_TIME, REFRESH_TOKEN_TIME } from '../constants/time.js';
 import { sessionCollection } from '../db/models/session.js';
 
@@ -26,7 +27,7 @@ export const registerUser = async ({ email, name, password }) => {
 };
 
 export const loginUser = async ({ email, password }) => {
-  const user = userCollection.findOne({ email });
+  const user = await userCollection.findOne({ email });
 
   if (!user) {
     throw createHttpError(401, 'User not found');
@@ -38,12 +39,42 @@ export const loginUser = async ({ email, password }) => {
     throw createHttpError(401, 'Password is wrong');
   }
 
-  const deleteSession = await sessionCollection.deleteOne({ user: user._id });
+  await sessionCollection.deleteOne({ userId: user._id });
 
-  const sessionCreate = sessionCollection.create({
+  const sessionCreate = await sessionCollection.create({
     ...createSession(),
-    user: user._id,
+    userId: user._id,
   });
 
-  return { deleteSession, sessionCreate };
+  return sessionCreate;
+};
+
+export const refreshUserSession = async ({ sessionToken, sessionId }) => {
+  const session = await sessionCollection.findOne({
+    _id: sessionId,
+    refreshToken: sessionToken,
+  });
+
+  if (!session) {
+    throw createHttpError(401, 'Session not found');
+  }
+
+  if (session.refreshTokenValidUntil < new Date()) {
+    throw createHttpError(401, 'Session token expired');
+  }
+
+  const user = await userCollection.findById(session.userId);
+
+  if (!user) {
+    throw createHttpError(401, 'User in the session not found');
+  }
+
+  await sessionCollection.findByIdAndDelete(session.userId);
+
+  const refreshSession = await sessionCollection.create({
+    ...createSession(),
+    session: session.userId,
+  });
+
+  return refreshSession;
 };
