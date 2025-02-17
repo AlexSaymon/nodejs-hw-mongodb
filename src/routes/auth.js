@@ -4,7 +4,8 @@ import { registerUserValidationSchema } from '../validation/registerUserValidati
 import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 import {
   loginUserController,
-  refershUserSessionController,
+  logoutUserController,
+  refreshUserSessionController,
   registerUserController,
 } from '../controllers/auth.js';
 import { userLoginValidationSchema } from '../validation/loginUserValidationSchema.js';
@@ -23,6 +24,8 @@ authRouter.post(
   ctrlWrapper(loginUserController),
 );
 
-authRouter.post('/refresh-session', ctrlWrapper(refershUserSessionController));
+authRouter.post('/refresh-session', ctrlWrapper(refreshUserSessionController));
+
+authRouter.post('/logout', ctrlWrapper(logoutUserController));
 
 export default authRouter;

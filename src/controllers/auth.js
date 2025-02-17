@@ -1,12 +1,13 @@
 import {
   loginUser,
+  logoutUser,
   refreshUserSession,
   registerUser,
 } from '../services/auth.js';
 import { serializeUser } from '../utils/serializeUser.js';
 
 const setupSessionCookies = (session, res) => {
-  res.cookie('SessionToken', session.refreshToken, {
+  res.cookie('sessionToken', session.refreshToken, {
     httpOnly: true,
     expires: session.refreshTokenValidUntil,
   });
@@ -44,10 +45,10 @@ export const loginUserController = async (req, res) => {
   });
 };
 
-export const refershUserSessionController = async (req, res) => {
-  const userSession = refreshUserSession({
-    sessionId: req.cookies.sessionId,
+export const refreshUserSessionController = async (req, res) => {
+  const userSession = await refreshUserSession({
     sessionToken: req.cookies.sessionToken,
+    sessionId: req.cookies.sessionId,
   });
 
   setupSessionCookies(userSession, res);
@@ -56,7 +57,19 @@ export const refershUserSessionController = async (req, res) => {
     status: 200,
     message: 'Successfully refreshed a session!',
     data: {
-      accessToken: userSession.acesssToken,
+      accessToken: userSession.accessToken,
     },
   });
+};
+
+export const logoutUserController = async (req, res) => {
+  await logoutUser({
+    sessionId: req.cookies.sessionId,
+    sessionToken: req.cookies.sessionToken,
+  });
+
+  res.clearCookie('sessionId');
+  res.clearCookie('sessionToken');
+
+  res.status(204).send();
 };

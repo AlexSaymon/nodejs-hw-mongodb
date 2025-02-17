@@ -69,12 +69,21 @@ export const refreshUserSession = async ({ sessionToken, sessionId }) => {
     throw createHttpError(401, 'User in the session not found');
   }
 
-  await sessionCollection.findByIdAndDelete(session.userId);
+  await sessionCollection.findByIdAndDelete(session._id);
 
   const refreshSession = await sessionCollection.create({
     ...createSession(),
-    session: session.userId,
+    userId: session.userId,
   });
 
   return refreshSession;
+};
+
+export const logoutUser = async ({ sessionToken, sessionId }) => {
+  const logout = await sessionCollection.findByIdAndDelete({
+    _id: sessionId,
+    refreshToken: sessionToken,
+  });
+
+  return logout;
 };
