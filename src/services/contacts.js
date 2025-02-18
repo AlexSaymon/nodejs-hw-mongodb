@@ -1,5 +1,6 @@
-import { processContactPayload } from '../utils/processContactPayload.js';
 import { contactsCollection } from '../db/models/contacts.js';
+import { userCollection } from '../db/models/user.js';
+import createHttpError from 'http-errors';
 
 const createPaginationMetadata = (page, perPage, count) => {
   const totalPages = Math.ceil(count / perPage);
@@ -57,25 +58,58 @@ export const getAllContacts = async ({
   return { items: contacts, ...paginationMetadata };
 };
 
-export const getContactById = async (contactId) => {
-  const contactById = await contactsCollection.findById(contactId);
+export const getContactById = async (contactId, userId) => {
+  const user = await contactsCollection.findOne({
+    _id: contactId,
+    userId,
+  });
 
-  return contactById;
+  if (!user) {
+    throw createHttpError(401, 'User not found');
+  }
+
+  return user;
 };
 
-export const createContact = async (payload) => {
-  const contact = await contactsCollection.create(
-    processContactPayload(payload),
-  );
+export const createContact = async (payload, userId) => {
+  const user = await userCollection.findOne({
+    _id: userId,
+  });
 
-  return contact;
+  if (!user) {
+    throw createHttpError(401, 'User not found');
+  }
+
+  const createContact = await contactsCollection.create({
+    ...payload,
+    userId: user._id,
+  });
+
+  return createContact;
 };
 
-export const upsertContact = async (contactId, payload, options = {}) => {
-  const response = await contactsCollection.findByIdAndUpdate(
-    contactId,
-    processContactPayload(payload),
-    { ...options, new: true, includeResultMetadata: true },
+export const upsertContact = async (
+  contactId,
+  payload,
+  userId,
+  options = {},
+) => {
+  const user = await userCollection.findOne({
+    _id: userId,
+  });
+
+  if (!user) {
+    throw createHttpError(401, 'User not found');
+  }
+
+  const filterId = { _id: contactId, userId };
+
+  const upsertOptions = { ...options, new: true, includeResultMetadata: true };
+
+  const response = await contactsCollection.findOneAndUpdate(
+    filterId,
+    payload,
+    upsertOptions,
   );
 
   const contact = response.value;
@@ -84,6 +118,7 @@ export const upsertContact = async (contactId, payload, options = {}) => {
   return {
     contact,
     isNew,
+    userId: user._id,
   };
 };
 
