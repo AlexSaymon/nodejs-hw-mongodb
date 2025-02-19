@@ -122,8 +122,15 @@ export const upsertContact = async (
   };
 };
 
-export const deleteContactById = async (contactById) => {
-  const deleteContact = await contactsCollection.findByIdAndDelete(contactById);
+export const deleteContactById = async (contactById, userId) => {
+  const user = await contactsCollection.findByIdAndDelete({
+    _id: contactById,
+    userId,
+  });
 
-  return deleteContact;
+  if (!user) {
+    throw createHttpError(401, 'User not found');
+  }
+
+  return user;
 };
