@@ -23,9 +23,17 @@ export const getAllContacts = async ({
   sortBy,
   sortOrder,
   filter,
+  userId,
 }) => {
   const offset = (page - 1) * perPage;
-  const filtersQuery = contactsCollection.find();
+
+  const user = await userCollection.findOne({ _id: userId });
+
+  if (!user) {
+    throw createHttpError(401, 'No user found');
+  }
+
+  const filtersQuery = contactsCollection.find({ userId });
 
   if (filter.isFavourite || filter.isFavourite === false) {
     filtersQuery.where('isFavourite').equals(filter.isFavourite);
@@ -35,10 +43,12 @@ export const getAllContacts = async ({
     filtersQuery.where('contactType').equals(filter.type);
   }
 
-  const contactsCountQuery = contactsCollection.find().countDocuments();
+  const contactsCountQuery = contactsCollection
+    .find({ userId })
+    .countDocuments();
 
   const contactsQuery = contactsCollection
-    .find()
+    .find({ userId })
     .merge(filtersQuery)
     .skip(offset)
     .limit(perPage)
@@ -55,20 +65,16 @@ export const getAllContacts = async ({
     contactsCount,
   );
 
-  return { items: contacts, ...paginationMetadata };
+  return { items: contacts, userId: user._id, ...paginationMetadata };
 };
 
 export const getContactById = async (contactId, userId) => {
-  const user = await contactsCollection.findOne({
+  const contact = await contactsCollection.findOne({
     _id: contactId,
     userId,
   });
 
-  if (!user) {
-    throw createHttpError(401, 'User not found');
-  }
-
-  return user;
+  return contact;
 };
 
 export const createContact = async (payload, userId) => {
@@ -123,14 +129,10 @@ export const upsertContact = async (
 };
 
 export const deleteContactById = async (contactById, userId) => {
-  const user = await contactsCollection.findByIdAndDelete({
+  const contact = await contactsCollection.findByIdAndDelete({
     _id: contactById,
     userId,
   });
 
-  if (!user) {
-    throw createHttpError(401, 'User not found');
-  }
-
-  return user;
+  return contact;
 };
