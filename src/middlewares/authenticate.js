@@ -23,12 +23,12 @@ export const authenticate = async (req, res, next) => {
 
     const session = await sessionCollection.findOne({ accessToken: token });
 
-    if (session.accessTokenValidUntil < new Date()) {
-      throw createHttpError(401, 'Access token expired');
+    if (!session) {
+      throw createHttpError(401, 'No authorized session found');
     }
 
-    if (!session) {
-      throw createHttpError(401, 'No active session found');
+    if (session.accessTokenValidUntil < new Date()) {
+      throw createHttpError(401, 'Access token expired');
     }
 
     const user = await userCollection.findById(session.userId);

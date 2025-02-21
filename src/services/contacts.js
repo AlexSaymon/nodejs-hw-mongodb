@@ -65,7 +65,7 @@ export const getAllContacts = async ({
     contactsCount,
   );
 
-  return { items: contacts, userId: user._id, ...paginationMetadata };
+  return { items: contacts, ...paginationMetadata };
 };
 
 export const getContactById = async (contactId, userId) => {
