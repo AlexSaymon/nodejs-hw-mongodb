@@ -25,7 +25,7 @@ const createSession = () => ({
 });
 
 export const requestResetPasswordEmail = async (email) => {
-  const user = userCollection.findOne({ email });
+  const user = await userCollection.findOne({ email });
 
   if (!user) {
     throw createHttpError(404, 'User not found');
@@ -34,7 +34,7 @@ export const requestResetPasswordEmail = async (email) => {
   const token = jwt.sign(
     { sub: user._id, email },
     getEnv(ENV_VARS.JWT_SECRET),
-    { expiresIn: '15m' },
+    { expiresIn: '5m' },
   );
 
   const resetPasswordLink = `${getEnv(
@@ -65,7 +65,7 @@ export const resetPassword = async ({ password, token }) => {
     throw createHttpError(401, 'JWT token is invalid or expired');
   }
 
-  const user = await userCollection.findOne(payload.sub);
+  const user = await userCollection.findById(payload.sub);
 
   if (!user) {
     throw createHttpError(404, 'User not found');

@@ -7,6 +7,7 @@ import { errorHandlerMiddleware } from './middlewares/errorHandler.js';
 import { router } from './routes/index.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import cookieParser from 'cookie-parser';
+import { UPLOADS_DIR_PATH } from './constants/path.js';
 
 export const setupServer = () => {
   const app = express();
@@ -27,6 +28,8 @@ export const setupServer = () => {
       },
     }),
   );
+
+  app.use('/uploads', express.static(UPLOADS_DIR_PATH));
 
   app.use(router);
 
