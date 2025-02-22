@@ -4,6 +4,18 @@ import bcrypt from 'bcrypt';
 import crypto from 'node:crypto';
 import { ACCESS_TOKEN_TIME, REFRESH_TOKEN_TIME } from '../constants/time.js';
 import { sessionCollection } from '../db/models/session.js';
+import fs from 'node:fs';
+import { TEMPLATES_DIR_PATH } from '../constants/path.js';
+import path from 'node:path';
+import { getEnv } from '../utils/getEnv.js';
+import { ENV_VARS } from '../constants/env.js';
+import Handlebars from 'handlebars';
+import jwt from 'jsonwebtoken';
+import { sendEmail } from '../utils/sendEmail.js';
+
+const resetEmailTemplate = fs
+  .readFileSync(path.join(TEMPLATES_DIR_PATH, 'reset-password-email.html'))
+  .toString();
 
 const createSession = () => ({
   accessToken: crypto.randomBytes(50).toString('base64'),
@@ -11,6 +23,60 @@ const createSession = () => ({
   accessTokenValidUntil: new Date(Date.now() + ACCESS_TOKEN_TIME),
   refreshTokenValidUntil: new Date(Date.now() + REFRESH_TOKEN_TIME),
 });
+
+export const requestResetPasswordEmail = async (email) => {
+  const user = userCollection.findOne({ email });
+
+  if (!user) {
+    throw createHttpError(404, 'User not found');
+  }
+
+  const token = jwt.sign(
+    { sub: user._id, email },
+    getEnv(ENV_VARS.JWT_SECRET),
+    { expiresIn: '15m' },
+  );
+
+  const resetPasswordLink = `${getEnv(
+    ENV_VARS.APP_DOMAIN,
+  )}/reset-password?token=${token}`;
+
+  const template = Handlebars.compile(resetEmailTemplate);
+
+  const html = template({
+    user: user.name,
+    link: resetPasswordLink,
+  });
+
+  await sendEmail({
+    to: email,
+    from: getEnv(ENV_VARS.SMTP_FROM),
+    subject: 'Reset your password',
+    html,
+  });
+};
+
+export const resetPassword = async ({ password, token }) => {
+  let payload;
+  try {
+    payload = jwt.verify(token, getEnv(ENV_VARS.JWT_SECRET));
+  } catch (err) {
+    console.error(err);
+    throw createHttpError(401, 'JWT token is invalid or expired');
+  }
+
+  const user = await userCollection.findOne(payload.sub);
+
+  if (!user) {
+    throw createHttpError(404, 'User not found');
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  await userCollection.findByIdAndUpdate(user._id, {
+    password: hashedPassword,
+  });
+};
 
 export const registerUser = async ({ email, name, password }) => {
   let user = await userCollection.findOne({ email });
