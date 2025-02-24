@@ -1,8 +1,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { UPLOADS_DIR_PATH } from '../constants/path';
-import { ENV_VARS } from '../constants/env';
-import { getEnv } from './getEnv';
+import { UPLOADS_DIR_PATH } from '../constants/path.js';
+import { ENV_VARS } from '../constants/env.js';
+import { getEnv } from './getEnv.js';
 
 export const saveFileToLocal = async (photo) => {
   await fs.rename(photo.path, path.join(UPLOADS_DIR_PATH, photo.filename));
