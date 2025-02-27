@@ -13,11 +13,10 @@ cloudinary.config({
 export const saveFileToCloudinary = async (file) => {
   try {
     const res = await cloudinary.v2.uploader.upload(file.path);
+    await fs.unlink(file.path);
     return res.secure_url;
   } catch (err) {
     console.log(err);
     throw createHttpError(500, 'Failed to upload image to cloudinary');
-  } finally {
-    await fs.unlink(file.path);
   }
 };
