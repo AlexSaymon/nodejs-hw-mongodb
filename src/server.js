@@ -8,6 +8,7 @@ import { router } from './routes/index.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import cookieParser from 'cookie-parser';
 import { UPLOADS_DIR_PATH } from './constants/path.js';
+import { swaggerDocs } from './middlewares/swaggerDocs.js';
 
 export const setupServer = () => {
   const app = express();
@@ -17,18 +18,14 @@ export const setupServer = () => {
   app.use(cookieParser());
 
   app.use(
-    express.json({
-      type: ['application.json', 'application/vnd.api+json'],
-    }),
-  );
-
-  app.use(
     pino({
       transport: {
         target: 'pino-pretty',
       },
     }),
   );
+
+  app.use('/api-docs', swaggerDocs());
 
   app.use('/uploads', express.static(UPLOADS_DIR_PATH));
 
