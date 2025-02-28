@@ -17,12 +17,6 @@ export const setupServer = () => {
   app.use(cookieParser());
 
   app.use(
-    express.json({
-      type: ['application.json', 'application/vnd.api+json'],
-    }),
-  );
-
-  app.use(
     pino({
       transport: {
         target: 'pino-pretty',
