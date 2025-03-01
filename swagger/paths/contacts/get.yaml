@@ -37,7 +37,7 @@ parameters:
     name: typeOfContact
     schema:
       type: string
-      example: '10'
+      enum: ['work, home, personal']
 responses:
   '200':
     description: Successfully found contacts!

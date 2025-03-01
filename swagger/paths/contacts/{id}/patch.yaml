@@ -1,7 +1,7 @@
 tags:
   - Contacts
 summary: Update contact by id
-operationId: patchContact
+operationId: updateContact
 description: 'Update contact by id. Please provide only valid mongodb id'
 security:
   - bearerAuth: []

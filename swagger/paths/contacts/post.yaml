@@ -33,7 +33,7 @@ requestBody:
             example: 'false'
           contactType:
             description: "Contact's type."
-            type: number
+            type: string
             enum: ['work, home, personal']
           userId:
             description: "Contact's user id afer registration"
