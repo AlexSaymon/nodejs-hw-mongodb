@@ -2,7 +2,7 @@ tags:
   - Contacts
 summary: Update contact by id
 operationId: updateContact
-description: 'Update contact by id. Please provide only valid mongodb id'
+description: 'Update contact by id. Please provide only valid MongoDB id'
 security:
   - bearerAuth: []
 parameters:
@@ -13,6 +13,12 @@ parameters:
       type: string
       example: '65ca67e7ae7f10c88b598384'
       description: 'Please provide only valid MongoDB id'
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        $ref: '../../../components/schemas/contact.yaml'
 responses:
   '200':
     description: 'Update contact by id'

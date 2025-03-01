@@ -153,7 +153,7 @@
         ],
         "summary": "Update contact by id",
         "operationId": "updateContact",
-        "description": "Update contact by id. Please provide only valid mongodb id",
+        "description": "Update contact by id. Please provide only valid MongoDB id",
         "security": [
           {
             "bearerAuth": []
@@ -171,6 +171,16 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contact"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Update contact by id",
@@ -374,8 +384,7 @@
                   "phoneNumber",
                   "email",
                   "isFavourite",
-                  "contactType",
-                  "userId"
+                  "contactType"
                 ],
                 "properties": {
                   "name": {
@@ -385,25 +394,25 @@
                   },
                   "phoneNumber": {
                     "description": "Contact's phone",
-                    "type": "number",
+                    "type": "string",
                     "example": "+3809245024"
+                  },
+                  "email": {
+                    "description": "Contact's email",
+                    "type": "string",
+                    "example": "johndoe@example.com"
                   },
                   "isFavourite": {
                     "description": "Contact's favourite type",
                     "type": "boolean",
-                    "example": "false"
+                    "example": false
                   },
                   "contactType": {
                     "description": "Contact's type.",
                     "type": "string",
                     "enum": [
-                      "work, home, personal"
+                      "personal"
                     ]
-                  },
-                  "userId": {
-                    "description": "Contact's user id afer registration",
-                    "type": "string",
-                    "example": "65e4decdd286b30065d54af9"
                   },
                   "photo": {
                     "description": "Contact's photo",
